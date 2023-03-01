@@ -1,0 +1,20 @@
+
+ · Pulling latest changes from 'AD482-apps' ...................................................................................................... SUCCESS
+ · Copying lab files to workspace ................................................................................................................ SUCCESS
+    - Lab files copied to C:\Users\vikas\AD482\kafka-schemas
+ · Copying env file .............................................................................................................................. SUCCESS
+    - C:\Users\vikas\AD482\.env copied to C:\Users\vikas\AD482\kafka-schemas
+ · Verifying your OpenShift API URL .............................................................................................................. SUCCESS
+ · Verifying your OpenShift user credentials ..................................................................................................... SUCCESS
+ · Moving to the Kafka namespace ................................................................................................................. SUCCESS
+ · Verifying your Kafka settings ................................................................................................................. SUCCESS
+    - Bootstrap Server: my-cluster-kafka-bootstrap-gyvrve-kafka-cluster.apps.ap46a.prod.ole.redhat.com
+    - Bootstrap Port: 443
+    - Path to Cluster Certificate: C:\Users\vikas\AD482\kafka-cluster.crt
+    - Cluster Namespace: gyvrve-kafka-cluster
+ · Creating topics (1 partition): new-bank-account ............................................................................................... SUCCESS
+ · Creating OpenShift projects ................................................................................................................... SUCCESS
+    - Project created: 'gyvrve-kafka-schemas'
+ · Creating ephemeral storage for the Service Registry ........................................................................................... SUCCESS
+ · Installing the Service Registry ............................................................................................................... SUCCESS
+    - Service Registry URL: service-registry.gyvrve-kafka-schemas.apps.ap46a.prod.ole.redhat.com

@@ -1,0 +1,3 @@
+com\redhat\telemetry\HumidityStatsResource.class
+com\redhat\telemetry\HumidityConditionsConsumer.class
+com\redhat\telemetry\HumidityStats.class
