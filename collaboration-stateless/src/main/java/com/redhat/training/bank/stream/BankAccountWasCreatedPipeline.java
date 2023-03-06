@@ -16,7 +16,7 @@ import javax.enterprise.event.Observes;
 import javax.transaction.Transactional;
 
 @ApplicationScoped
-public class BankAccountWasCreatedPipeline extends  StreamProcessor {
+public class BankAccountWasCreatedPipeline extends StreamProcessor {
     private static final Logger LOGGER = Logger.getLogger(BankAccountWasCreatedPipeline.class);
 
     // Reading topic
@@ -28,14 +28,15 @@ public class BankAccountWasCreatedPipeline extends  StreamProcessor {
         System.out.println("On Start Steam is being setup");
         StreamsBuilder builder = new StreamsBuilder();
 
-        ObjectMapperSerde<BankAccountWasCreated> eventSerde
-                = new ObjectMapperSerde<>(BankAccountWasCreated.class);
+        ObjectMapperSerde<BankAccountWasCreated> eventSerde = new ObjectMapperSerde<>(BankAccountWasCreated.class);
 
         // TODO: Update the account type on each event
-        builder.stream(BANK_ACCOUNT_WAS_CREATED_TOPIC, Consumed.with(Serdes.Long(), eventSerde)).foreach((key,value) -> updateAccountTypeFromEvent(value));
+        builder.stream(BANK_ACCOUNT_WAS_CREATED_TOPIC, Consumed.with(Serdes.Long(), eventSerde))
+                .foreach((key, value) -> updateAccountTypeFromEvent(value));
 
         // TODO: Create a Kafka streams and start it
         streams = new KafkaStreams(builder.build(), generateStreamConfig());
+        streams.start();
     }
 
     void onStop(@Observes ShutdownEvent shutdownEvent) {
@@ -53,8 +54,7 @@ public class BankAccountWasCreatedPipeline extends  StreamProcessor {
             LOGGER.infov(
                     "Updated Bank Account - ID: {0} - Type: {1}",
                     event.id,
-                    entity.profile
-            );
+                    entity.profile);
         } else {
             LOGGER.infov("Bank Account with id {0} not found!", event.id);
         }

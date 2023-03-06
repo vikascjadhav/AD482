@@ -15,6 +15,7 @@ import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
+import javax.swing.plaf.basic.BasicOptionPaneUI.ButtonActionListener;
 
 @ApplicationScoped
 public class AmountWasDepositedPipeline extends StreamProcessor {
@@ -31,15 +32,27 @@ public class AmountWasDepositedPipeline extends StreamProcessor {
     void onStart(@Observes StartupEvent startupEvent) {
         StreamsBuilder builder = new StreamsBuilder();
 
-        ObjectMapperSerde<AmountWasDeposited> depositEventSerde
-                = new ObjectMapperSerde<>(AmountWasDeposited.class);
+        ObjectMapperSerde<AmountWasDeposited> depositEventSerde = new ObjectMapperSerde<>(AmountWasDeposited.class);
 
-        ObjectMapperSerde<HighValueDepositWasDetected> highValueEventSerde
-                = new ObjectMapperSerde<>(HighValueDepositWasDetected.class);
+        ObjectMapperSerde<HighValueDepositWasDetected> highValueEventSerde = new ObjectMapperSerde<>(
+                HighValueDepositWasDetected.class);
 
         // TODO: Build the stream topology
 
+        builder.stream(AMOUNT_WAS_DEPOSITED_TOPIC, Consumed.with(Serdes.Long(), depositEventSerde))
+                .filter((k, v) -> v.amount > 1000).map((key, value) -> {
+                    System.out.println("Filtered AcctI and Amt : "+value.bankAccountId +" Amt: "+value.amount);
+                    return new KeyValue<>(value.bankAccountId,
+                            new HighValueDepositWasDetected(value.bankAccountId, value.amount));
+
+                })
+                .to(HIGH_VALUE_DEPOSIT_TOPIC, Produced.with(Serdes.Long(), highValueEventSerde));
+
+                
         // TODO: Create a Kafka streams and start it
+
+        KafkaStreams streams= new KafkaStreams(builder.build(), generateStreamConfig());
+        streams.start();
     }
 
     void onStop(@Observes ShutdownEvent shutdownEvent) {
@@ -51,7 +64,6 @@ public class AmountWasDepositedPipeline extends StreamProcessor {
         LOGGER.infov(
                 "HighValueDepositWasDetected - Account ID: {0} Amount: {1}",
                 bankAccountId,
-                amount
-        );
+                amount);
     }
 }
