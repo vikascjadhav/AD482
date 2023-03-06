@@ -41,17 +41,16 @@ public class AmountWasDepositedPipeline extends StreamProcessor {
 
         builder.stream(AMOUNT_WAS_DEPOSITED_TOPIC, Consumed.with(Serdes.Long(), depositEventSerde))
                 .filter((k, v) -> v.amount > 1000).map((key, value) -> {
-                    System.out.println("Filtered AcctI and Amt : "+value.bankAccountId +" Amt: "+value.amount);
+                    System.out.println("Filtered AcctI and Amt : " + value.bankAccountId + " Amt: " + value.amount);
                     return new KeyValue<>(value.bankAccountId,
                             new HighValueDepositWasDetected(value.bankAccountId, value.amount));
 
                 })
                 .to(HIGH_VALUE_DEPOSIT_TOPIC, Produced.with(Serdes.Long(), highValueEventSerde));
 
-                
         // TODO: Create a Kafka streams and start it
 
-        KafkaStreams streams= new KafkaStreams(builder.build(), generateStreamConfig());
+        KafkaStreams streams = new KafkaStreams(builder.build(), generateStreamConfig());
         streams.start();
     }
 
