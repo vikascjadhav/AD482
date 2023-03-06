@@ -10,6 +10,9 @@ import java.util.Collections;
 import com.redhat.energy.meter.common.Config;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.IntegerDeserializer;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -45,23 +48,53 @@ public class ReportingSystem extends Config {
     private static void configureConsumerForLab(Properties props) {
         props.put(
                 ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
-                "false"
-        );
+                "false");
     }
 
     private static void configureConsumer(Properties props) {
         // TODO: set the bootstrap server
 
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                "my-cluster-kafka-bootstrap-gyvrve-kafka-cluster.apps.ap46a.prod.ole.redhat.com:443");
+
         // TODO: set the consumer group ID
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "reportingSystem");
 
         // TODO: set the key deserializer
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                "org.apache.kafka.common.serialization.StringDeserializer");
+        // TODO: configure the key serializer
 
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                "org.apache.kafka.common.serialization.IntegerDeserializer");
         // TODO: set the value deserializer
-
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         // TODO: set the offset reset config
     }
 
-    public static void main( String[] args ) throws IOException {
+    public static void main(String[] args) throws IOException {
         // TODO: implement the business logic
+
+        Consumer<Void,Integer> consumer = new KafkaConsumer<>(configureProperties());
+        consumer.subscribe(Collections.singletonList("wind-turbine-production"));
+        while (true) {
+            ConsumerRecords<Void, Integer> records = consumer.poll(Duration.ofSeconds(10));
+    
+            int aggregatedEnergy = 0;
+            int processedRecords = 0;
+    
+            for (ConsumerRecord<Void, Integer> record : records) {
+                printRecord(record);
+    
+                aggregatedEnergy += record.value();
+                processedRecords++;
+    
+                if (processedRecords % 5 == 0) {
+                    printAggregation(aggregatedEnergy);
+                    saveAggregationToFile(aggregatedEnergy);
+                    aggregatedEnergy = 0;
+                }
+            }
+        }
     }
 }
