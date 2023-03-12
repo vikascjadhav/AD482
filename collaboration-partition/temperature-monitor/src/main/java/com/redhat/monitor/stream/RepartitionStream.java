@@ -33,19 +33,26 @@ public class RepartitionStream extends StreamProcessor {
     void onStart(@Observes StartupEvent startupEvent) {
         StreamsBuilder builder = new StreamsBuilder();
 
-        ObjectMapperSerde<TemperatureWasMeasuredInCelsius> temperaturesEventSerde
-                = new ObjectMapperSerde<>(TemperatureWasMeasuredInCelsius.class);
+        ObjectMapperSerde<TemperatureWasMeasuredInCelsius> temperaturesEventSerde = new ObjectMapperSerde<>(
+                TemperatureWasMeasuredInCelsius.class);
 
         KStream<String, TemperatureWasMeasuredInCelsius> stream = builder.stream(
-                TEMPERATURES_TOPIC, Consumed.with(Serdes.String(), temperaturesEventSerde)
-        );
+                TEMPERATURES_TOPIC, Consumed.with(Serdes.String(), temperaturesEventSerde));
 
         // TODO: Implement the topology for the repartitioning
+        stream.map((key, measure) -> {  
+            LOGGER.infov(
+                "Repartitioning ID {0}, {1}ºC ...",
+                measure.locationId, measure.measure
+            );
+    
+            return new KeyValue<>(measure.locationId, measure);
+        }).to(TEMPERATURES_REPARTITIONED_TOPIC,
+                Produced.with(Serdes.Integer(), temperaturesEventSerde));
 
         streams = new KafkaStreams(
                 builder.build(),
-                generateStreamConfig()
-        );
+                generateStreamConfig());
 
         streams.start();
     }

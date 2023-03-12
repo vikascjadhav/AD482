@@ -25,7 +25,7 @@ public class TransformTemperature extends StreamProcessor {
     private static final int CALCULATION_DELAY = 5000;
 
     // Reading topic
-    static final String TEMPERATURES_TOPIC = "temperatures-in-celsius";
+    static final String TEMPERATURES_TOPIC = "temperatures-in-celsius-repartitioned";
 
     // Writing topic
     static final String MEASURED_TEMPERATURES_TOPIC = "measured-temperatures";

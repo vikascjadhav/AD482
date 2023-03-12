@@ -14,7 +14,6 @@ import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.StoreQueryParameters;
 
-
 @Path("/vehicle/metrics")
 public class VehicleMetricsResource {
 
@@ -27,9 +26,10 @@ public class VehicleMetricsResource {
 
         // TODO: query the store
 
-        ReadOnlyKeyValueStore<Integer,VehicleMetrics> store = streams.store(StoreQueryParameters.fromNameAndType("vehicle-metrics-store", QueryableStoreTypes.keyValueStore()));
+        ReadOnlyKeyValueStore<Integer, VehicleMetrics> store = streams.store(
+                StoreQueryParameters.fromNameAndType("vehicle-metrics-store", QueryableStoreTypes.keyValueStore()));
 
-        store.all().forEachRemaining( row ->vehicleMetrics.add(row.value) );
+        store.all().forEachRemaining(row -> vehicleMetrics.add(row.value));
 
         return vehicleMetrics;
     }
