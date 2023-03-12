@@ -40,6 +40,11 @@ public class ProducerApp {
             ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
             "org.apache.kafka.common.serialization.LongSerializer"
         );
+
+        props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG,false);
+        props.put(ProducerConfig.RETRIES_CONFIG, 0);
+        props.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 150);
+        props.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, 60000);
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL");
         props.put(
             SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG,
